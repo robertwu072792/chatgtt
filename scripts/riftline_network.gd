@@ -46,8 +46,11 @@ const PROJECT_ID := "riftline-lan"
 ## No wire fields changed.
 ## v22: Concourse layout V11 removes the rejected overhead overlook gate wall
 ## from both authored geometry and collision. No wire fields changed.
+## v23: Concourse layout V12 replaces the straight two-stair overlook with one
+## front-left stair and an asymmetric widened combat platform. No wire fields
+## changed.
 ## Mismatched builds must refuse to pair rather than silently desync.
-const PROTOCOL_VERSION := 22
+const PROTOCOL_VERSION := 23
 const MODE_LABEL := "nuclear-rush"
 const MAP_LABEL := "concourse"
 const APP_HOST_REMOTE_SLOTS := 7

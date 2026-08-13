@@ -111,20 +111,23 @@ func _assert_bridge_support_record(solids: Array, wanted_name: String, wanted_po
 	assert(false, "missing bridge support: %s" % wanted_name)
 
 func _assert_overlook_reference_platform_records(solids: Array) -> void:
-	var overlook_turn := atan2(1.5, 6.0)
 	var expected: Array[Dictionary] = [
-		{"name": "OverlookFloorMain", "position": Vector3(25.825, 2.9, 26.0), "dimensions": Vector3(7.95, 0.6, 28.8), "rotation": 0.0},
-		{"name": "OverlookFloorTurnExtension", "position": Vector3(30.55, 2.9, 26.0), "dimensions": Vector3(1.5, 0.6, 13.0), "rotation": 0.0},
-		{"name": "OverlookOuterRailSouth", "position": Vector3(29.8, 3.85, 15.55), "dimensions": Vector3(0.34, 1.3, 8.1), "rotation": 0.0},
-		{"name": "OverlookOuterRailTurnSouth", "position": Vector3(30.55, 3.85, 22.5), "dimensions": Vector3(0.34, 1.3, 6.4), "rotation": overlook_turn},
-		{"name": "OverlookOuterRailCenter", "position": Vector3(31.3, 3.85, 26.0), "dimensions": Vector3(0.34, 1.3, 1.2), "rotation": 0.0},
-		{"name": "OverlookOuterRailTurnNorth", "position": Vector3(30.55, 3.85, 29.5), "dimensions": Vector3(0.34, 1.3, 6.4), "rotation": -overlook_turn},
-		{"name": "OverlookOuterRailNorth", "position": Vector3(29.8, 3.85, 36.45), "dimensions": Vector3(0.34, 1.3, 8.1), "rotation": 0.0},
-		{"name": "OverlookInnerGlass", "position": Vector3(22.05, 4.12, 25.8), "dimensions": Vector3(0.30, 1.84, 16.4), "rotation": 0.0},
-		{"name": "OverlookEquipmentBox", "position": Vector3(26.35, 3.92, 26.2), "dimensions": Vector3(3.3, 1.16, 1.78), "rotation": 0.0},
-		{"name": "OverlookGateInner", "position": Vector3(22.15, 4.82, 35.2), "dimensions": Vector3(0.78, 3.24, 0.82), "rotation": 0.0},
-		{"name": "OverlookGateOuter", "position": Vector3(29.35, 4.82, 35.2), "dimensions": Vector3(0.78, 3.24, 0.82), "rotation": 0.0},
+		{"name": "OverlookFloorEntrance", "shape": "box", "position": Vector3(25.4, 2.9, 14.8), "dimensions": Vector3(6.8, 0.6, 7.2), "rotation": 0.0},
+		{"name": "OverlookFloorCombat", "shape": "box", "position": Vector3(26.7, 2.9, 25.4), "dimensions": Vector3(9.4, 0.6, 14.0), "rotation": 0.0},
+		{"name": "OverlookFloorRear", "shape": "box", "position": Vector3(25.6, 2.9, 35.6), "dimensions": Vector3(7.2, 0.6, 6.4), "rotation": 0.0},
+		{"name": "OverlookOuterRailEntryEnd", "shape": "box", "position": Vector3(25.4, 3.85, 11.2), "dimensions": Vector3(6.8, 1.3, 0.34), "rotation": 0.0},
+		{"name": "OverlookOuterRailEntry", "shape": "box", "position": Vector3(28.8, 3.85, 14.8), "dimensions": Vector3(0.34, 1.3, 7.2), "rotation": 0.0},
+		{"name": "OverlookOuterRailWiden", "shape": "box", "position": Vector3(30.1, 3.85, 18.4), "dimensions": Vector3(2.6, 1.3, 0.34), "rotation": 0.0},
+		{"name": "OverlookOuterRailCombat", "shape": "box", "position": Vector3(31.4, 3.85, 25.4), "dimensions": Vector3(0.34, 1.3, 14.0), "rotation": 0.0},
+		{"name": "OverlookOuterRailNarrow", "shape": "box", "position": Vector3(30.3, 3.85, 32.4), "dimensions": Vector3(2.2, 1.3, 0.34), "rotation": 0.0},
+		{"name": "OverlookOuterRailRear", "shape": "box", "position": Vector3(29.2, 3.85, 35.6), "dimensions": Vector3(0.34, 1.3, 6.4), "rotation": 0.0},
+		{"name": "OverlookOuterRailRearEnd", "shape": "box", "position": Vector3(25.6, 3.85, 38.8), "dimensions": Vector3(7.2, 1.3, 0.34), "rotation": 0.0},
+		{"name": "OverlookInnerGlass", "shape": "box", "position": Vector3(22.05, 4.12, 30.25), "dimensions": Vector3(0.30, 1.84, 15.5), "rotation": 0.0},
+		{"name": "OverlookBlastWall", "shape": "box", "position": Vector3(25.5, 5.0, 19.55), "dimensions": Vector3(1.16, 3.6, 5.42), "rotation": deg_to_rad(25.0)},
+		{"name": "OverlookEquipmentBox", "shape": "box", "position": Vector3(24.1, 3.95, 27.35), "dimensions": Vector3(3.25, 1.5, 2.1), "rotation": 0.0},
+		{"name": "OverlookMainStair", "shape": "ramp", "position": Vector3(17.5, 0.0, 14.8), "dimensions": Vector3(9.0, 0.2, 5.4), "rotation": 0.0},
 	]
+	var stair_count := 0
 	for team_sign_variant in [-1.0, 1.0]:
 		var team_sign: float = float(team_sign_variant)
 		var team_name := "Blue" if team_sign < 0.0 else "Red"
@@ -142,8 +145,31 @@ func _assert_overlook_reference_platform_records(solids: Array) -> void:
 				assert((solid.dimensions as Vector3).is_equal_approx(record.dimensions as Vector3))
 				var expected_rotation: float = float(record.rotation) + (PI if team_sign < 0.0 else 0.0)
 				assert(is_equal_approx(float(solid.rotation_y), expected_rotation))
+				assert(str(solid.shape) == str(record.shape))
+				if str(record.name) == "OverlookMainStair":
+					stair_count += 1
+					assert(is_equal_approx(float(solid.rise), 3.2))
+					assert(not bool(solid.route_blocker))
 				break
 			assert(found, "missing reference-style overlook piece: %s" % wanted_name)
+	assert(stair_count == 2, "each mirrored platform must have exactly one main stair")
+
+	# Every corner of the rotated wall stays at least 0.5 m inside the local deck.
+	var wall_center := Vector2(25.5, 19.55)
+	var wall_half := Vector2(1.16, 5.42) * 0.5
+	var wall_angle := deg_to_rad(25.0)
+	for local_x_variant in [-wall_half.x, wall_half.x]:
+		var local_x: float = float(local_x_variant)
+		for local_z_variant in [-wall_half.y, wall_half.y]:
+			var local_z: float = float(local_z_variant)
+			var corner := wall_center + Vector2(
+				local_x * cos(wall_angle) + local_z * sin(wall_angle),
+				-local_x * sin(wall_angle) + local_z * cos(wall_angle))
+			var outer_edge := 28.8 if corner.y <= 18.4 else 31.4
+			assert(corner.x >= 22.5 and corner.x <= outer_edge - 0.5,
+				"blast-wall corner violates 0.5 m deck clearance: %s" % corner)
+			assert(corner.y >= 11.7 and corner.y <= 38.3,
+				"blast-wall corner leaves the deck: %s" % corner)
 	for solid_variant in solids:
 		var solid: Dictionary = solid_variant
 		var solid_name := str(solid.name)
@@ -155,6 +181,12 @@ func _assert_overlook_reference_platform_records(solids: Array) -> void:
 			"rejected diagonal overlook divider survived: %s" % solid_name)
 		assert(not solid_name.contains("OverlookGateHeader"),
 			"rejected overhead gate wall survived: %s" % solid_name)
+		assert(not solid_name.contains("OverlookGateInner") and not solid_name.contains("OverlookGateOuter"),
+			"rejected repeated gate pylon survived: %s" % solid_name)
+		assert(not solid_name.contains("OverlookFloorMain") and not solid_name.contains("OverlookFloorTurnExtension"),
+			"rejected straight-bridge floor survived: %s" % solid_name)
+		assert(not solid_name.contains("OverlookRamp"),
+			"a second legacy overlook stair survived: %s" % solid_name)
 
 func _assert_central_bridge_access(map: RiftlineMap) -> void:
 	for side_variant in [-1.0, 1.0]:
@@ -226,38 +258,34 @@ func _assert_central_bridge_crossing(map: RiftlineMap) -> void:
 func _assert_overlook_access_and_passage(map: RiftlineMap) -> void:
 	for team_sign_variant in [-1.0, 1.0]:
 		var team_sign: float = float(team_sign_variant)
-		for local_z_variant in [14.0, 38.0]:
-			var local_z: float = float(local_z_variant)
-			var ramp_probe := _make_player_probe("OverlookRampProbe_%s_%s" % [team_sign, local_z])
-			map.add_child(ramp_probe)
-			ramp_probe.global_position = Vector3(team_sign * 12.5, 1.05, team_sign * local_z)
+		var ramp_probe := _make_player_probe("OverlookMainStairProbe_%s" % team_sign)
+		map.add_child(ramp_probe)
+		ramp_probe.global_position = Vector3(team_sign * 12.5, 1.05, team_sign * 14.8)
+		await physics_frame
+		for _step in 240:
+			ramp_probe.velocity.x = team_sign * 5.0
+			ramp_probe.velocity.z = 0.0
+			_apply_probe_gravity(ramp_probe)
+			ramp_probe.move_and_slide()
 			await physics_frame
-			for _step in 240:
-				ramp_probe.velocity.x = team_sign * 5.0
-				ramp_probe.velocity.z = 0.0
-				_apply_probe_gravity(ramp_probe)
-				ramp_probe.move_and_slide()
-				await physics_frame
-				if ramp_probe.global_position.x * team_sign > 22.5 and ramp_probe.global_position.y > 3.8:
-					break
-			assert(ramp_probe.global_position.x * team_sign > 22.4,
-				"overlook stair did not reach its upper landing: %s" % ramp_probe.global_position)
-			assert(ramp_probe.global_position.y > 3.8,
-				"overlook stair left the player below its upper landing: %s" % ramp_probe.global_position)
-			ramp_probe.queue_free()
-			await physics_frame
+			if ramp_probe.global_position.x * team_sign > 22.5 and ramp_probe.global_position.y > 3.8:
+				break
+		assert(ramp_probe.global_position.x * team_sign > 22.4,
+			"main overlook stair did not reach its flat landing: %s" % ramp_probe.global_position)
+		assert(ramp_probe.global_position.y > 3.8,
+			"main overlook stair left the player below its landing: %s" % ramp_probe.global_position)
+		ramp_probe.queue_free()
+		await physics_frame
 
 		var passage_probe := _make_player_probe("OverlookPassageProbe_%s" % team_sign)
 		map.add_child(passage_probe)
-		# Start on the arena floor and physically climb the first stair.  The V9
-		# regression teleported this probe onto the deck and therefore could not
-		# catch a visually disconnected stair landing.
-		passage_probe.global_position = Vector3(team_sign * 12.5, 1.05, team_sign * 14.0)
+		# Start on the arena floor and physically climb the sole stair, then use the
+		# broad outer lane around the angled wall and offset equipment cover.
+		passage_probe.global_position = Vector3(team_sign * 12.5, 1.05, team_sign * 14.8)
 		await physics_frame
 		var local_waypoints: Array[Vector2] = [
-			Vector2(22.8, 14.0), Vector2(25.5, 18.0), Vector2(28.5, 22.5),
-			Vector2(29.2, 27.0), Vector2(28.3, 31.5), Vector2(25.2, 35.0),
-			Vector2(22.8, 38.0),
+			Vector2(22.8, 14.8), Vector2(27.8, 15.2), Vector2(29.0, 18.9),
+			Vector2(29.2, 23.5), Vector2(28.8, 29.8), Vector2(27.4, 35.5),
 		]
 		for waypoint in local_waypoints:
 			var world_target := Vector3(team_sign * waypoint.x, 4.1, team_sign * waypoint.y)
@@ -274,11 +302,34 @@ func _assert_overlook_access_and_passage(map: RiftlineMap) -> void:
 				await physics_frame
 			assert(Vector2(passage_probe.global_position.x, passage_probe.global_position.z).distance_to(Vector2(world_target.x, world_target.z)) < 0.8,
 				"overlook slalom waypoint is blocked: %s -> %s" % [passage_probe.global_position, world_target])
-		assert(passage_probe.global_position.z * team_sign > 36.0,
-			"overlook passage between the two stairs is blocked: %s" % passage_probe.global_position)
+		assert(passage_probe.global_position.z * team_sign > 34.5,
+			"asymmetric overlook main route is blocked: %s" % passage_probe.global_position)
 		assert(passage_probe.global_position.y > 3.8,
 			"overlook passage dropped the player below the deck: %s" % passage_probe.global_position)
 		passage_probe.queue_free()
+		await physics_frame
+
+		# The inner-left opening is intentionally unguarded.  It must drop straight
+		# onto the unchanged, flat concourse floor rather than a ramp or structure.
+		var jump_probe := _make_player_probe("OverlookJumpOpeningProbe_%s" % team_sign)
+		map.add_child(jump_probe)
+		jump_probe.global_position = Vector3(team_sign * 23.0, 4.1, team_sign * 20.8)
+		await physics_frame
+		for _step in 240:
+			jump_probe.velocity.x = -team_sign * 3.5
+			jump_probe.velocity.z = 0.0
+			_apply_probe_gravity(jump_probe)
+			jump_probe.move_and_slide()
+			await physics_frame
+			if jump_probe.is_on_floor() and jump_probe.global_position.y < 1.3:
+				break
+		assert(jump_probe.global_position.x * team_sign < 21.5,
+			"glass or geometry blocks the jump opening: %s" % jump_probe.global_position)
+		assert(jump_probe.is_on_floor() and jump_probe.global_position.y < 1.3,
+			"jump opening does not land on the normal floor: %s" % jump_probe.global_position)
+		assert(jump_probe.get_floor_normal().y > 0.95,
+			"jump opening landed on a slope or extra structure: %s" % jump_probe.get_floor_normal())
+		jump_probe.queue_free()
 		await physics_frame
 
 func _make_player_probe(probe_name: String) -> CharacterBody3D:

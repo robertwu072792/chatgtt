@@ -7,7 +7,7 @@ extends RefCounted
 ## node construction stay in RiftlineMap so the same authored data can be
 ## exercised without creating a presentation tree.
 
-const VERSION := 11
+const VERSION := 12
 const CONCOURSE_RADIUS := 60.0
 const CORE_SPAWN := Vector3(0.0, 0.72, 0.0)
 
@@ -144,41 +144,37 @@ static func _add_team_structures(solids: Array[Dictionary], team_sign: float, te
 	]:
 		add_box.call("MaintenanceCover_%s" % cover.v, Vector3(float(cover.u), 0.6, float(cover.v)), Vector3(1.2, 1.2, 1.2))
 
-	# The reference overlook is one continuous deck, not two angled slabs.  The
-	# main rectangle meets each ramp only at its near-level final rise, while a
-	# shallow outer extension supplies the small turn from the reference without
-	# creating a floor seam.  The authored Blender shell uses one watertight polygon;
-	# these two coplanar boxes are only its simple gameplay-floor contract.
-	add_box.call("OverlookFloorMain", Vector3(25.825, 2.9, 26.0), Vector3(7.95, 0.6, 28.8), false, "steel")
-	add_box.call("OverlookFloorTurnExtension", Vector3(30.55, 2.9, 26.0), Vector3(1.5, 0.6, 13.0), false, "steel")
+	# V12 replaces the rejected straight bridge with one asymmetric combat deck:
+	# a narrow stair landing opens into a wider middle and narrows again at the
+	# rear.  Blender authors this as one watertight stepped polygon; the three
+	# coplanar boxes below are the intentionally simple gameplay-floor contract.
+	add_box.call("OverlookFloorEntrance", Vector3(25.4, 2.9, 14.8), Vector3(6.8, 0.6, 7.2), false, "steel")
+	add_box.call("OverlookFloorCombat", Vector3(26.7, 2.9, 25.4), Vector3(9.4, 0.6, 14.0), false, "steel")
+	add_box.call("OverlookFloorRear", Vector3(25.6, 2.9, 35.6), Vector3(7.2, 0.6, 6.4), false, "steel")
 
-	# The open outer rail traces the small template turn.  Adjacent spans overlap
-	# slightly in the Blender mesh so neither players nor bullets can find a gap.
-	var overlook_turn := atan2(1.5, 6.0)
-	add_box.call("OverlookOuterRailSouth", Vector3(29.8, 3.85, 15.55), Vector3(0.34, 1.3, 8.1))
-	add_box.call("OverlookOuterRailTurnSouth", Vector3(30.55, 3.85, 22.5), Vector3(0.34, 1.3, 6.4), true, "concrete", overlook_turn)
-	add_box.call("OverlookOuterRailCenter", Vector3(31.3, 3.85, 26.0), Vector3(0.34, 1.3, 1.2))
-	add_box.call("OverlookOuterRailTurnNorth", Vector3(30.55, 3.85, 29.5), Vector3(0.34, 1.3, 6.4), true, "concrete", -overlook_turn)
-	add_box.call("OverlookOuterRailNorth", Vector3(29.8, 3.85, 36.45), Vector3(0.34, 1.3, 8.1))
+	# Only the objective-facing inner edge uses glass.  The stepped outer edge is
+	# protected by grounded metal rails, with no mirrored second glass wall.
+	add_box.call("OverlookOuterRailEntryEnd", Vector3(25.4, 3.85, 11.2), Vector3(6.8, 1.3, 0.34))
+	add_box.call("OverlookOuterRailEntry", Vector3(28.8, 3.85, 14.8), Vector3(0.34, 1.3, 7.2))
+	add_box.call("OverlookOuterRailWiden", Vector3(30.1, 3.85, 18.4), Vector3(2.6, 1.3, 0.34))
+	add_box.call("OverlookOuterRailCombat", Vector3(31.4, 3.85, 25.4), Vector3(0.34, 1.3, 14.0))
+	add_box.call("OverlookOuterRailNarrow", Vector3(30.3, 3.85, 32.4), Vector3(2.2, 1.3, 0.34))
+	add_box.call("OverlookOuterRailRear", Vector3(29.2, 3.85, 35.6), Vector3(0.34, 1.3, 6.4))
+	add_box.call("OverlookOuterRailRearEnd", Vector3(25.6, 3.85, 38.8), Vector3(7.2, 1.3, 0.34))
+	add_box.call("OverlookInnerGlass", Vector3(22.05, 4.12, 30.25), Vector3(0.30, 1.84, 15.5), true, "steel")
 
-	# One straight, level ballistic-glass line faces the nuclear objective.  Both
-	# stair landings remain open, and the equipment box is freestanding with a
-	# player-width route on every side instead of intersecting a wall.
-	add_box.call("OverlookInnerGlass", Vector3(22.05, 4.12, 25.8), Vector3(0.30, 1.84, 16.4), true, "steel")
-	add_box.call("OverlookEquipmentBox", Vector3(26.35, 3.92, 26.2), Vector3(3.3, 1.16, 1.78))
-	add_box.call("OverlookGateInner", Vector3(22.15, 4.82, 35.2), Vector3(0.78, 3.24, 0.82))
-	add_box.call("OverlookGateOuter", Vector3(29.35, 4.82, 35.2), Vector3(0.78, 3.24, 0.82))
-	# The supplied reference is authoritative except for its overhead gate wall.
-	# Keep the two grounded side pylons, but leave the opening clear visually and
-	# physically so shots cannot hit an invisible header.
+	# A 25-degree full-height blast wall breaks the stair-to-core sightline while
+	# remaining at least half a metre inside the deck.  Its inner-left side is
+	# deliberately open and glass-free so a player can jump to the normal floor.
+	add_box.call("OverlookBlastWall", Vector3(25.5, 5.0, 19.55), Vector3(1.16, 3.6, 5.42), true, "concrete", deg_to_rad(25.0))
+	# The cover sits toward the glass; the broad outer side stays the main route.
+	add_box.call("OverlookEquipmentBox", Vector3(24.1, 3.95, 27.35), Vector3(3.25, 1.5, 2.1))
 
-	# The two ramps use local +U as their rise direction and end on the local
-	# overlook deck.  The former diagonal upper connector, its rails, and its
-	# blocker were removed so the new straight central bridge owns the only
-	# through route above the arena floor.
-	for v_value in [14.0, 38.0]:
-		var ramp_position := _team_position(team_sign, Vector3(17.5, 0.0, v_value))
-		solids.append(_solid(team_prefix + "OverlookRamp%s" % v_value, "ramp", ramp_position, Vector3(9.0, 0.2, 4.5), PI if team_sign < 0.0 else 0.0, 3.2, "steel", false, true))
+	# One wide stair at the player's front-left is the sole authored access.  The
+	# visible Blender stair uses ten steps, closed trapezoid side walls and thick
+	# rails; this shallow ramp is its stable player collision.
+	var stair_position := _team_position(team_sign, Vector3(17.5, 0.0, 14.8))
+	solids.append(_solid(team_prefix + "OverlookMainStair", "ramp", stair_position, Vector3(9.0, 0.2, 5.4), PI if team_sign < 0.0 else 0.0, 3.2, "steel", false, true))
 
 static func _solid(name: String, shape: String, position: Vector3, dimensions: Vector3, rotation_y: float, rise: float, material_role: String, route_blocker: bool, casts_shadow: bool) -> Dictionary:
 	return {
